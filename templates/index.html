@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>MGAF</title>
+        <link rel="stylesheet" type="text/css" href="../static/css/index.css">
+    </head>
+
+    <body>
+        <script src="../static/js/jQuery-3.6.0.js"></script>
+
+        <nav id="top-nav-bar">
+            <div id="logo">MGAF</div>
+            <div id="tnb-placeholder-text">Development Build</div>
+        </nav>
+
+        <div id="body-region">
+            <div id="content-main">
+                <script>
+                    $(document).ready(function() {
+                        $.ajax({
+                            type : "GET",
+                            url : "/api/get-topic-post/1",
+                            success : function (html) {
+                                $("#content-main").append(html);
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+
+        <div id="footer-region">
+            <div id="input">
+
+            </div>
+        </div>
+
+        <div id="mask-grayout-fullpage">
+            <script>
+                $(document).ready(function(){
+                    $("#mask-grayout-fullpage").click(function(){
+                        window.activeSubWindow.fadeToggle(500);
+                        $("#post-creation-menu").fadeToggle(500);
+                        window.activeSubWindow = null;
+                    });
+                });
+            </script>
+        </div>
+
+        <div id="post-creation-menu">
+            <form action="/api/create-post" method="get" id="post-creation-form">
+                <div id="post-creation-title">
+                    <input type="text" name="post-title" id="post-title" placeholder="Post Title" required>
+                </div>
+
+                <div id="post-creation-body">
+                    <textarea type="text" name="post-body" id="post-body" placeholder="What you wanna say?" required></textarea>
+                </div>
+
+                <div class="post-menu-buttons">
+                    <div id="post-add-file">Add Image</div>
+                    <button type="submit" id="post-send">Send</button>
+                </div>
+            </form>
+        </div>
+
+    </body>
+
+    <script>
+        /* init */
+        $(document).ready(function() {
+            $("#mask-grayout-fullpage").toggle();
+            $("#post-creation-menu").toggle();
+
+            window.activeSubWindow = null;
+        });
+    </script>
+</html>
