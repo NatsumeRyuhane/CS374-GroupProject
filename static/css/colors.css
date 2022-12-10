@@ -1,8 +1,11 @@
 :root {
-    --accent-color-main: #4277bd;
-    --accent-color-alt: #3269b6;
-    --accent-color-disable: #6e7d91;
-    --text-color-main: #666666;
-    --text-color-light: #888888;
-    --text-color-very-light: #cccccc
+    --accent-color-main: #4096ff;
+    --accent-color-alt: #2f54eb;
+    --accent-color-disable: #e6f4ff;
+    --text-color-light: #91caff;
+    --text-color-very-light: #bae0ff;
+    --text-color-dark: #003eb3;
+    --text-color-main: #333333;
+    --text-color-light-greyscale: #d9d9d9;
+    --text-color-very-light-greyscale: #f5f5f5;
 }

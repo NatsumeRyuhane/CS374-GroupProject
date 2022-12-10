@@ -24,7 +24,7 @@ class Server:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind((hostname, port))
-            self.socket.listen(8)
+            self.socket.listen(16)
         except:
             logging.error("Error during server socket creation")
             self.shutdown()

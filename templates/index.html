@@ -2,38 +2,75 @@
 
 <html lang="en">
     <head>
-        <title>MGAF</title>
+        <title>Chatroom!</title>
         <link rel="stylesheet" type="text/css" href="../static/css/index.css">
     </head>
 
     <body>
         <script src="../static/js/jQuery-3.6.0.js"></script>
-
         <nav id="top-nav-bar">
-            <div id="logo">MGAF</div>
-            <div id="tnb-placeholder-text">Development Build</div>
+            <div id="tnb-placeholder-text"></div>
         </nav>
 
         <div id="body-region">
-            <div id="content-main">
-                <script>
-                    $(document).ready(function() {
-                        $.ajax({
-                            type : "GET",
-                            url : "/api/get-topic-post/1",
-                            success : function (html) {
-                                $("#content-main").append(html);
-                            }
-                        });
+            <div id="chat-window">
+                <div id="chat-msg-display">
+                    <div class="chat-msg">
+                        <div class="chat-msg-metadata">
+                            <div class="chat-msg-username">192.168.0.1</div>
+                            <div class="chat-msg-send-time">2022-12-08 19:47:53</div>
+                            <div class="chat-msg-private-marker"></div>
+                        </div>
+                        <div class="chat-msg-content">Hello</div>
+                    </div>
+
+
+                    <div class="chat-msg-self">
+                        <div class="chat-msg-metadata">
+                            <div class="chat-msg-private-marker">&lt&lt 192.168.0.1 (Private Message)</div>
+                            <div class="chat-msg-send-time">2022-12-08 19:58:21</div>
+                            <div class="chat-msg-username">127.0.0.1</div>
+                        </div>
+                        <div class="chat-msg-content">
+                        owdniodjio<br>wkjdqwbdwqdb
+                        </div>
+                    </div>
+
+                    <div class="chat-msg">
+                        <div class="chat-msg-metadata">
+                            <div class="chat-msg-username">192.168.0.1</div>
+                            <div class="chat-msg-send-time">2022-12-08 19:49:53</div>
+                            <div class="chat-msg-private-marker">Private Message</div>
+                        </div>
+                        <div class="chat-msg-content">WTF?</div>
+                    </div>
+
+
+                </div>
+
+
+
+                <div id="chat-toolbar">
+                    <label for="text-input"></label>
+                    <div id="text-input">
+                        <p id="text-input-content" contenteditable="true"></p>
+                    </div>
+
+                    <button id="send-btn"> Send</button>
+                </div>
+            </div>
+
+            <script>
+                $(document).ready(function() {
+                    $.ajax({
+                        type : "GET",
+                        url : "/api/get-topic-post/1",
+                        success : function (html) {
+                            $("#chat-window").append(html);
+                        }
                     });
-                </script>
-            </div>
-        </div>
-
-        <div id="footer-region">
-            <div id="input">
-
-            </div>
+                });
+            </script>
         </div>
 
         <div id="mask-grayout-fullpage">
@@ -47,33 +84,89 @@
                 });
             </script>
         </div>
-
-        <div id="post-creation-menu">
-            <form action="/api/create-post" method="get" id="post-creation-form">
-                <div id="post-creation-title">
-                    <input type="text" name="post-title" id="post-title" placeholder="Post Title" required>
-                </div>
-
-                <div id="post-creation-body">
-                    <textarea type="text" name="post-body" id="post-body" placeholder="What you wanna say?" required></textarea>
-                </div>
-
-                <div class="post-menu-buttons">
-                    <div id="post-add-file">Add Image</div>
-                    <button type="submit" id="post-send">Send</button>
-                </div>
-            </form>
-        </div>
-
     </body>
 
     <script>
         /* init */
         $(document).ready(function() {
             $("#mask-grayout-fullpage").toggle();
-            $("#post-creation-menu").toggle();
-
             window.activeSubWindow = null;
+            var thread = jQuery.Deferred(); //create a thread
+            thread.resolve() //start the thread
+
+            //process the thread
+            thread.done(function (){
+                //poll for information of functions every 5 seconds
+                setInterval(function () {
+                    getInformation();
+                },5000);
+            });
         });
     </script>
 </html>
+
+
+<!-- /* 不知道对不对,发送json*/ -->
+<script>
+    $(document).ready(function()
+    {
+        $.ajax({
+            type: "POST",
+            url: '?????',
+            dataType: 'jsonp',
+            jsonp: 'cb',
+            data: 'XXXXXXX',
+            success: function (msg)
+            {
+                console.log(msg)
+            }
+        });
+    });
+</script>
+
+
+<!-- 不知道对不对,轮询要消息 -->
+<script>
+    $(document).ready(function poll()
+    {
+        $.ajax({
+            url: "/api/get_message/",
+            type: "GET",
+            success: function(html) {
+                console.log("polling");
+                $("#chat-window").append(html);
+            },
+            dataType: "json",
+            complete: setTimeout(function() {poll()}, 1000),
+            timeout: 1000
+        })
+    });
+</script>
+
+<!-- 请求url? -->
+<script>
+    $(document).getJSON("json_url",function(){
+        $.each(data.posts,function (i,post)
+        {
+            var html = "<div class='post'>" +
+                "<h2>"+ post.title + "</h2>" +
+                "<p>" + post.body + "</p>" +
+                "</div>";
+            $("#posts").append(html);
+
+        });
+    });
+</script>
+
+<script>
+    var extractedInfo = [];
+    // Polling function to retrieve information
+        function getInformation()
+        {
+            // Extract the HTML content of the div element
+            var username = $("#chat-msg-username").html();
+            var content = $("#chat-msg-content").html();
+            extractedInfo.push(username);
+            extractedInfo.push(content);
+        }
+</script>
