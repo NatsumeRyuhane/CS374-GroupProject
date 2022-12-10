@@ -1,0 +1,9 @@
+{
+  "message" : {
+    "id" : "",                    <-- int
+    "type" : "",                  <-- "system" or "plain"
+    "timestamp" : 0,              <-- unix time stamp (13 digits)
+    "sender" : "",                <-- sender ip address
+    "private_recipient" : ""      <-- recipient ip address, -1 if it is public message
+  }
+}

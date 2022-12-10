@@ -26,25 +26,19 @@ MIME_type_dict = {
     "js": "text/javascript",
     }
 
-class StaticResource:
 
-    def __init__(self, route: str, filepath: str, MIME_type: str):
-        self.route = route
-        self.filepath = filepath
-        self.MIME_type = MIME_type
+def register_static_resource(route: str, filepath: str, MIME_type: str):
+    @serv.register_route(route=route, MIME_type=MIME_type)
+    def register_static_resource_file(request):
+        with open(filepath) as f:
+            content = f.read()
 
-        @serv.register_route(route=self.route, MIME_type=self.MIME_type)
-        def register_static_resource(request):
-            with open(self.filepath) as f:
-                content = f.read()
-
-            return content
+        return content
 
 
 for dir in os.listdir(f"{static_root}/"):
     for file in os.listdir(f"{static_root}/{dir}/"):
-
-        StaticResource(route=f"/static/{dir}/{file}", filepath=f"./{static_root}/{dir}/{file}", MIME_type=f"{MIME_type_dict[dir]}")
+        register_static_resource(route=f"/static/{dir}/{file}", filepath=f"./{static_root}/{dir}/{file}", MIME_type=f"{MIME_type_dict[dir]}")
 
 
 # register templates
@@ -56,8 +50,10 @@ def index(request):
     return content
 
 # application logic
+@serv.register_route(route="/api/post_message/", MIME_type="text/plain")
+
 @serv.register_route(route="/api/get_message/", MIME_type="application/json")
 def get_message(request):
-    return ""
+    return "i"
 
 serv.run()

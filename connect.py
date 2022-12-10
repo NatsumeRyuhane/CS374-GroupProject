@@ -75,19 +75,24 @@ class Server:
     def receive_from(self, client, buffer_size = 4096, encoding = 'utf-8'):
         data = None
         try:
-            data = client.recv(buffer_size)
-            data = data.decode(encoding)
-            if (data == ''):
-                self.send(client, 0)
+            data_raw = client.recv(buffer_size)
+            data = data_raw.decode(encoding)
+            if len(data_raw) == 0:
+                logging.warning(f"null data received from [ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ], testing if the connection is alive...")
+                self.send(client, 0, ping_test=True)
         except OSError:
             raise ConnectionDropException
 
-        logging.info(f"Data received from {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]}, length = {len(data)} Bytes")
+        if len(data_raw) > 0:
+            logging.info(f"Data received from [ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ], length = {len(data)} Bytes")
         return data
 
-    def send(self, client, data):
+    def send(self, client, data, ping_test = False):
         data_bytes = str(data).encode('utf-8')
-        logging.info(f"Sending data to [ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ], length = {len(data_bytes)} Bytes")
+        if ping_test:
+            logging.info(f"Pinging [ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ]")
+        else:
+            logging.info(f"Sending data to [ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ], length = {len(data_bytes)} Bytes")
         try:
             client.send(data_bytes)
             return

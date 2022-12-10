@@ -19,7 +19,7 @@ class HTTPServer(connect.Server):
                     request = self.parse_http_request(data)
 
                     if request:
-                        logging.info(f"[ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ] request: METHOD = {request['method']}, route = {request['route']}")
+                        logging.info(f"[ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ] HTTP request: METHOD = {request['method']}, route = {request['route']}")
 
                         content = ""
                         if "route" in request.keys():
