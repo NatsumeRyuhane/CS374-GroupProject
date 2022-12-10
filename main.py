@@ -1,5 +1,9 @@
 import logging
 import os
+import threading
+import json
+import time
+import urllib.parse
 
 if not os.path.exists("../logs/"):
     os.mkdir("../logs/")
@@ -9,51 +13,72 @@ with open('../logs/server.log', 'w', encoding='utf-8') as f:
 
 logging.basicConfig(level='DEBUG', format='[%(asctime)s] [%(levelname)s] %(message)s', encoding='utf-8',
                     handlers=[
-                        logging.FileHandler("../logs/server.log"),
+                        logging.FileHandler("./logs/server.log"),
                         logging.StreamHandler()
                         ])
 
-from http_server import HTTPServer
+import http_server
+import init
 
-serv = HTTPServer(hostname="0.0.0.0", port=11451)
+os.system("ulimit -n 65535")
+serv = http_server.HTTPServer(hostname="0.0.0.0", port=11451)
 
-# register all static resources
-static_root = "./static"
+# register chat system logic
 
-MIME_type_dict = {
-    "html": "text/html",
-    "css": "text/css",
-    "js": "text/javascript",
-    }
+message_ID = 1
+chat_file_lock = threading.Lock()
 
+@serv.register_route(route="/api/post-message", MIME_type="text/plain")
+def post_message(request: http_server.HTTPRequest):
+    global message_ID
 
-def register_static_resource(route: str, filepath: str, MIME_type: str):
-    @serv.register_route(route=route, MIME_type=MIME_type)
-    def register_static_resource_file(request):
-        with open(filepath) as f:
-            content = f.read()
+    chat_file_lock.acquire()
+    with open("./data/chat.json", "r") as f:
+        chat_log = json.load(f)
+        f.close()
 
-        return content
+    new_message = {
+            "id": message_ID,
+            "type": "plain",
+            "timestamp": int(time.time()*1000),
+            "sender": request.client_IP,
+            "private_recipient": "null",
+            "content":  request.body
+        }
 
+    chat_log["messages"].append(new_message)
+    with open("./data/chat.json", "w") as f:
+        json.dump(chat_log, f)
 
-for dir in os.listdir(f"{static_root}/"):
-    for file in os.listdir(f"{static_root}/{dir}/"):
-        register_static_resource(route=f"/static/{dir}/{file}", filepath=f"./{static_root}/{dir}/{file}", MIME_type=f"{MIME_type_dict[dir]}")
+    message_ID += 1
 
+    chat_file_lock.release()
+    return ""
 
-# register templates
-@serv.register_route(route="/index.html", aliases=["/index", "/"], MIME_type="text/html")
-def index(request):
-    with open("./templates/index.html") as f:
-        content = f.read()
+@serv.register_route(route="/api/get-message", MIME_type="application/json")
+def get_message(request: http_server.HTTPRequest):
+    global message_ID
 
-    return content
+    chat_file_lock.acquire()
+    with open("./data/chat.json", "r") as f:
+        chat_log = json.load(f)
+        f.close()
 
-# application logic
-@serv.register_route(route="/api/post_message/", MIME_type="text/plain")
+    message_list = chat_log["messages"]
+    outgoing_message_list = []
 
-@serv.register_route(route="/api/get_message/", MIME_type="application/json")
-def get_message(request):
-    return "i"
+    if "maxMessageID" in request.parameters.keys():
+        for idx in range(0, len(message_list)):
+            if message_list[idx]["id"] > int(request.parameters["maxMessageID"]):
+                outgoing_message_list.append(message_list[idx])
 
+    chat_file_lock.release()
+    return json.dumps(outgoing_message_list)
+
+@serv.register_route(route="/api/get-username", MIME_type="text/plain")
+def get_message(request: http_server.HTTPRequest):
+    return request.client_IP
+
+init.init_server(serv)
+init.init_env()
 serv.run()

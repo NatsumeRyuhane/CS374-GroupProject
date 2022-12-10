@@ -89,6 +89,8 @@ body {
     width: fit-content;
     padding: 0.4rem 0.5rem;
     background-color: white;
+    max-width: 80%;
+    overflow-wrap: break-word;
 }
 
 .chat-msg-self {
@@ -104,6 +106,7 @@ body {
     width: fit-content;
     max-width: 80%;
     margin-right: 0.8rem;
+    overflow-wrap: break-word;
     background-color: var(--accent-color-main);
     color: white;
 

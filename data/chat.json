@@ -1,0 +1,13 @@
+{
+  "messages" : [
+    {
+      "id": 0,
+      "type": "system",
+      "timestamp": 0,
+      "sender": null,
+      "private_recipient": null,
+      "content": "This is the start of the channel."
+    }
+  ]
+}
+        

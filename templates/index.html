@@ -16,38 +16,8 @@
             <div id="chat-window">
                 <div id="chat-msg-display">
                     <div class="chat-msg">
-                        <div class="chat-msg-metadata">
-                            <div class="chat-msg-username">192.168.0.1</div>
-                            <div class="chat-msg-send-time">2022-12-08 19:47:53</div>
-                            <div class="chat-msg-private-marker"></div>
-                        </div>
-                        <div class="chat-msg-content">Hello</div>
                     </div>
-
-
-                    <div class="chat-msg-self">
-                        <div class="chat-msg-metadata">
-                            <div class="chat-msg-private-marker">&lt&lt 192.168.0.1 (Private Message)</div>
-                            <div class="chat-msg-send-time">2022-12-08 19:58:21</div>
-                            <div class="chat-msg-username">127.0.0.1</div>
-                        </div>
-                        <div class="chat-msg-content">
-                        owdniodjio<br>wkjdqwbdwqdb
-                        </div>
-                    </div>
-
-                    <div class="chat-msg">
-                        <div class="chat-msg-metadata">
-                            <div class="chat-msg-username">192.168.0.1</div>
-                            <div class="chat-msg-send-time">2022-12-08 19:49:53</div>
-                            <div class="chat-msg-private-marker">Private Message</div>
-                        </div>
-                        <div class="chat-msg-content">WTF?</div>
-                    </div>
-
-
                 </div>
-
 
 
                 <div id="chat-toolbar">
@@ -56,21 +26,25 @@
                         <p id="text-input-content" contenteditable="true"></p>
                     </div>
 
-                    <button id="send-btn"> Send</button>
+                    <button id="send-btn">Send</button>
+
+                    <script>
+                        $(document).ready(function(){
+                            $("#send-btn").click(function(){
+                                if($("#text-input-content").html() == "") {}
+                                else {
+                                    $.post(`/api/post-message`, $("#text-input-content").html(), function (data, status)
+                                    {
+                                        document.getElementById("text-input-content").innerHTML = "";
+                                        var elem = document.getElementById('chat-msg-display');
+                                        elem.scrollTop = elem.scrollHeight;
+                                    });
+                                }
+                            });
+                        });
+                    </script>
                 </div>
             </div>
-
-            <script>
-                $(document).ready(function() {
-                    $.ajax({
-                        type : "GET",
-                        url : "/api/get-topic-post/1",
-                        success : function (html) {
-                            $("#chat-window").append(html);
-                        }
-                    });
-                });
-            </script>
         </div>
 
         <div id="mask-grayout-fullpage">
@@ -89,84 +63,81 @@
     <script>
         /* init */
         $(document).ready(function() {
+
             $("#mask-grayout-fullpage").toggle();
             window.activeSubWindow = null;
-            var thread = jQuery.Deferred(); //create a thread
-            thread.resolve() //start the thread
+            window.maxMessageID = -1;
+            $.get("/api/get-username", function (data){
+                window.username = data.toString()
+            })
 
-            //process the thread
-            thread.done(function (){
-                //poll for information of functions every 5 seconds
-                setInterval(function () {
-                    getInformation();
-                },5000);
-            });
+            function updateChatDisplay(type, username, send_time, private_marker, content) {
+                if(private_marker === null || private_marker === "null")
+                {
+                    private_marker = " "
+                }
+                var html;
+                if(type === "system")
+                {
+                    html = `<div class="chat-msg-system">${content}</div>`
+                } else if(type === "self") {
+                    html = `<div class="chat-msg-self">
+<div class="chat-msg-metadata">
+<div class="chat-msg-username">${username}</div>
+<div class="chat-msg-send-time">${send_time}</div>
+<div class="chat-msg-private-marker">${private_marker}</div>
+</div>
+<div class="chat-msg-content">${content}</div>
+</div>`
+                } else {
+                    html = `<div class="chat-msg">
+<div class="chat-msg-metadata">
+<div class="chat-msg-username">${username}</div>
+<div class="chat-msg-send-time">${send_time}</div>
+<div class="chat-msg-private-marker">${private_marker}</div>
+</div>
+<div class="chat-msg-content">${content}</div>
+</div>`
+                }
+
+                $("#chat-msg-display").append(html)
+            }
+            window.updateChatDisplay = updateChatDisplay
+
+
+            var getMessageLoop = window.setInterval(function (){
+                console.log(`Requesting /api/get-message?maxMessageID=${window.maxMessageID}`)
+                $.getJSON(`/api/get-message?maxMessageID=${window.maxMessageID}`, function (data){
+                    $.each(data, function (key, content) {
+                        console.log(content)
+                        if(content != null) {
+                            const date = new Date(content.timestamp)
+                            let dateFormat = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
+
+                            if (content.private_recipient == null) {
+                                content.private_recipient = ""
+                            }
+
+                            if (content.type === "system") {
+                                updateChatDisplay("system", null, null, null, content.content)
+                            } else {
+                                if (content.sender === window.username) {
+                                    updateChatDisplay("self", content.sender, dateFormat, content.private_recipient, content.content)
+                                } else {
+                                    updateChatDisplay("plain", content.sender, dateFormat, content.private_recipient, content.content)
+                                }
+                            }
+
+                            var elem = document.getElementById('chat-msg-display');
+                            elem.scrollTop = elem.scrollHeight;
+
+                           if (content.id > window.maxMessageID) {
+                               window.maxMessageID = content.id
+                           }
+                        }
+                   });
+                });
+            }, 250);
         });
     </script>
 </html>
-
-
-<!-- /* 不知道对不对,发送json*/ -->
-<script>
-    $(document).ready(function()
-    {
-        $.ajax({
-            type: "POST",
-            url: '?????',
-            dataType: 'jsonp',
-            jsonp: 'cb',
-            data: 'XXXXXXX',
-            success: function (msg)
-            {
-                console.log(msg)
-            }
-        });
-    });
-</script>
-
-
-<!-- 不知道对不对,轮询要消息 -->
-<script>
-    $(document).ready(function poll()
-    {
-        $.ajax({
-            url: "/api/get_message/",
-            type: "GET",
-            success: function(html) {
-                console.log("polling");
-                $("#chat-window").append(html);
-            },
-            dataType: "json",
-            complete: setTimeout(function() {poll()}, 1000),
-            timeout: 1000
-        })
-    });
-</script>
-
-<!-- 请求url? -->
-<script>
-    $(document).getJSON("json_url",function(){
-        $.each(data.posts,function (i,post)
-        {
-            var html = "<div class='post'>" +
-                "<h2>"+ post.title + "</h2>" +
-                "<p>" + post.body + "</p>" +
-                "</div>";
-            $("#posts").append(html);
-
-        });
-    });
-</script>
-
-<script>
-    var extractedInfo = [];
-    // Polling function to retrieve information
-        function getInformation()
-        {
-            // Extract the HTML content of the div element
-            var username = $("#chat-msg-username").html();
-            var content = $("#chat-msg-content").html();
-            extractedInfo.push(username);
-            extractedInfo.push(content);
-        }
-</script>
