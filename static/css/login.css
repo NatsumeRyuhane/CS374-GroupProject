@@ -1,0 +1,85 @@
+@import "colors.css";
+
+body {
+    overflow-x: scroll;
+}
+
+.banner-pic {
+    background-color: var(--accent-color-main);
+}
+
+.function-pane {
+    min-width: fit-content;
+}
+
+#prompt {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: xx-large;
+    font-weight: bolder;
+}
+
+#heading-prompt-divisor {
+    color: #cccccc;
+    margin: auto 1rem;
+}
+
+.function-prompt {
+    color: var(--accent-color-disable);
+    white-space: nowrap;
+    padding: 0.1rem 0.5rem;
+}
+
+.heading-prompt-selected {
+    color: var(--accent-color-main);
+}
+
+#form-area {
+    display: flex;
+    justify-content: center;
+}
+
+#login-form, #register-form {
+    width: fit-content;
+    min-width: 50%;
+    margin-top: 1rem;
+    padding-left: 1rem;
+    display: flex;
+    border-left: 3px var(--accent-color-main) solid;
+    border-radius: 3px;
+    flex-direction: column;
+}
+
+.group-ipt {
+    width: 50%;
+    box-sizing: border-box;
+    margin: 0.5rem;
+    background: rgba(255,255,255,0.5);
+}
+
+.group-ipt > label {
+    color: var(--accent-color-main);
+}
+
+.group-ipt > label, input{
+    display: block;
+    width: 100%;
+    margin-bottom: 0.3rem;
+}
+
+#login-button, #register-button {
+    min-width: 5rem;
+    color: white;
+    background-color: var(--accent-color-main);
+    overflow: hidden;
+    box-shadow: none;
+    border: 0;
+    border-radius: 3px;
+    line-height: 2rem;
+    margin: 1rem 0;
+    display: block;
+    font-size: 15px;
+    cursor: pointer;
+    filter: drop-shadow(0 0.2rem 0.2rem rgba(0, 0, 0, 30%));
+}

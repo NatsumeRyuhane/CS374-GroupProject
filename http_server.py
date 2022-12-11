@@ -71,6 +71,7 @@ class HTTPServer(connect.Server):
                         response = self.construct_http_response(404, "")
 
                     self.send(client, response)
+                    self.close_connection(client)
         except BadHTTPRequestException:
             logging.warning(f"Unable to resolve HTTP request from [ {self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} ]")
         except connect.ConnectionDropException:
@@ -78,7 +79,7 @@ class HTTPServer(connect.Server):
 
     def register_route(self, route: str, aliases: list = None, MIME_type: str = "text/plain"):
         def decorate(func):
-            logging.info(f"registering route {route}, type = [{MIME_type}], function_id = {hex(id(func))}")
+            logging.debug(f"registering route {route}, type = [{MIME_type}], function_id = {hex(id(func))}")
             self.route_table[route] = [func, MIME_type]
             if aliases:
                 for alias in aliases:
@@ -111,7 +112,7 @@ Server: FKU Server\r
 Content-Length: {len(body)}\r
 Content-Type: {MIME_type}\r
 Connection: Keep-Alive\r
-Keep-Alive: timeout=5, max=1000\r
+Keep-Alive: timeout=5 , max=1000\r
 \r
 {body}
 """

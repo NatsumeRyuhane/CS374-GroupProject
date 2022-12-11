@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
     <head>
         <title>Chatroom!</title>
         <link rel="stylesheet" type="text/css" href="../static/css/index.css">
@@ -9,6 +9,25 @@
     <body>
         <script src="../static/js/jQuery-3.6.0.js"></script>
         <nav id="top-nav-bar">
+            <div id="nickname-change">
+                <input id="nickname-new"></input>
+                <button id="nickname-btn">Change Nickname</button>
+
+                <script>
+                    $(document).ready(function(){
+                        $("#nickname-btn").click(function(){
+                            console.log("Change")
+                            if($("#nickname-new").val() == "") {}
+                            else {
+                                $.post(`/api/set-nickname`, $("#nickname-new").val(), function (data, status)
+                                { });
+                                window.username = $("#nickname-new").val();
+                                $("#nickname-new").val('');
+                            }
+                        });
+                    });
+                </script>
+            </div>
             <div id="tnb-placeholder-text"></div>
         </nav>
 
@@ -67,8 +86,8 @@
             $("#mask-grayout-fullpage").toggle();
             window.activeSubWindow = null;
             window.maxMessageID = -1;
-            $.get("/api/get-username", function (data){
-                window.username = data.toString()
+            $.get("/api/get-configs", function (data){
+                window.username = data.username.toString()
             })
 
             function updateChatDisplay(type, username, send_time, private_marker, content) {

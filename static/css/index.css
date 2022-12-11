@@ -131,6 +131,7 @@ body {
     box-shadow: 1rem 0 0.5rem 0.25rem rgba(0, 0, 0, 3%);
     height: fit-content;
     padding: 0.5rem;
+    background-color: white;
 }
 
 #text-input {
@@ -139,8 +140,8 @@ body {
     height: fit-content;
     min-height: 1rem;
     width: 80%;
-    background-color: white;
     resize: vertical;
+    background: #f5f5f4;
 }
 
 #text-input-content {
@@ -164,7 +165,19 @@ body {
     justify-self: end;
 }
 
+#nickname-new {
+    padding: 0.2rem;
+}
+
 #tnb-placeholder-text {
     margin: 0 auto 0 auto;
     color: #cccccc;
+}
+
+#nickname-btn {
+    border: 1px white solid;
+    border-radius: 0.2rem;
+    padding: 0.2rem;
+    color: white;
+    background-color: rgb(0, 0, 0, 0%);
 }

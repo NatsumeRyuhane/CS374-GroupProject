@@ -111,8 +111,12 @@ class Server:
 
     def close_connection(self, client: socket):
         client.close()
-        del self.client_addr_table[client]
-        self.client_pool.remove(client)
+        try:
+            del self.client_addr_table[client]
+            self.client_pool.remove(client)
+        except KeyError:
+            pass
+
 
         # make sure the client request processing threads have done running
         if client in self.client_thread_table.keys():
@@ -126,7 +130,11 @@ class Server:
         return
 
     def connection_drop_handler(self, client: socket):
-        logging.warning(f"{self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} Connection dropped")
+        try:
+            logging.warning(f"{self.client_addr_table[client][0]}:{self.client_addr_table[client][1]} Connection dropped")
+        except KeyError:
+            pass
+
         self.close_connection(client)
         return
 
